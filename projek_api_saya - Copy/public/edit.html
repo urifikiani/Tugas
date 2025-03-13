@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Edit Admin</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="container mt-5">
+    <h2 class="text-center">Edit Admin</h2>
+    
+    <form id="editAdminForm">
+        <input type="hidden" id="editId">
+        <div class="mb-3">
+            <label class="form-label">Nama</label>
+            <input type="text" class="form-control" id="editName" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input type="email" class="form-control" id="editEmail" required>
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Password</label>
+            <input type="password" class="form-control" id="editPassword">
+        </div>
+        <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+        <a href="dashboard.html" class="btn btn-secondary">Kembali</a>
+    </form>
+</div>
+
+
+<script>
+const API_URL = "http://localhost:3100/admin";
+
+// Fungsi untuk mengambil data admin berdasarkan ID dari parameter URL
+async function fetchAdminData() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const adminId = urlParams.get("id");
+
+    if (!adminId) {
+        alert("ID Admin tidak ditemukan!");
+        window.location.href = "dashboard.html";
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_URL}/${adminId}`);
+        if (!response.ok) {
+            throw new Error("Gagal mengambil data admin.");
+        }
+
+        const data = await response.json();
+        if (data.length === 0) {
+            alert("Data admin tidak ditemukan!");
+            window.location.href = "dashboard.html";
+            return;
+        }
+
+        // Isi form dengan data admin yang diperoleh
+        document.getElementById("editId").value = data[0].admin_id;
+        document.getElementById("editName").value = data[0].name;
+        document.getElementById("editEmail").value = data[0].email;
+        document.getElementById("editPassword").value = data[0].password;
+    } catch (error) {
+        alert(error.message);
+    }
+}
+
+// Fungsi untuk menyimpan perubahan data admin
+document.getElementById("editAdminForm").addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    const adminId = document.getElementById("editId").value;
+    const updatedAdmin = {
+        name: document.getElementById("editName").value,
+        email: document.getElementById("editEmail").value,
+        password: document.getElementById("editPassword").value
+    };
+
+    try {
+        const response = await fetch(`${API_URL}/${adminId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updatedAdmin)
+        });
+
+        if (!response.ok) {
+            throw new Error("Gagal mengedit admin.");
+        }
+
+        alert("Data admin berhasil diperbarui!");
+        window.location.href = "dashboard.html";
+    } catch (error) {
+        alert(error.message);
+    }
+});
+
+// Jalankan fungsi saat halaman dimuat
+document.addEventListener("DOMContentLoaded", fetchAdminData);
+
+</script>
+</body>
+</html>
+
+<!-- <script>
+    const params = new URLSearchParams(window.location.search);
+    const adminId = params.get("id");
+
+    async function fetchAdmin() {
+        const response = await fetch(http://localhost:3100/admin/${adminId});
+        const admin = await response.json();
+
+        document.getElementById("editId").value = admin.admin_id;
+        document.getElementById("editName").value = admin.name;
+        document.getElementById("editEmail").value = admin.email;
+    }
+
+    document.getElementById("editAdminForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+        
+        const updatedAdmin = {
+            name: document.getElementById("editName").value,
+            email: document.getElementById("editEmail").value,
+            password: document.getElementById("editPassword").value,
+        };
+
+        await fetch(http://localhost:3100/admin/${adminId}, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(updatedAdmin),
+        });
+
+        window.location.href = "dashboard.html";
+    });
+
+    document.addEventListener("DOMContentLoaded", fetchAdmin);
+</script> -->
